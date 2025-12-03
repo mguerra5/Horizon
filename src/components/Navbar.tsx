@@ -47,10 +47,10 @@ export default function Navbar() {
 
                         <Button onClick={() => router.push('/upload')}>Upload</Button>
 
-                        {!isSignedIn ?
-                            <Button onClick={() => router.push('/onboarding/signup')}>Login</Button>
-                        :
+                        {isSignedIn ?
                             <Button onClick={() => router.push('/account')}>Account</Button>
+                        :
+                            <Button onClick={() => router.push('/onboarding/signup')}>Sign Up</Button>
                         }
                     </div>
                 </div>
