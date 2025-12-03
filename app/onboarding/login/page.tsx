@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link';
 
 import { supabase } from '@util/supabase/frontend';
 import Button from '@components/Button';
@@ -73,6 +74,8 @@ export default function SignUpPage() {
                     />
 
                     <Button onClick={handleSignUp}>Sign Up</Button>
+                    
+                    <p className='text-center'>If you do not have an account, <Link className='text-(--orange)' href='/onboarding/signup'>Sign Up</Link></p>
                 </div>
 
                 {message && (

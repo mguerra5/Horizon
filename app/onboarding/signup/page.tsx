@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link';
 
 import { supabase } from '@util/supabase/frontend';
 import Button from '@components/Button';
@@ -34,13 +35,31 @@ export default function SignUpPage() {
             }
         });
 
-        console.log(data)
         if (error) {
-            console.log(error)
+            console.log(error);
             setMessage(error.message);
-        } else {
-            router.push('/');
+            setLoading(false);
+            return;
         }
+
+        if (data.user) {
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: data.user.id,
+                    display_name: username || email.split('@')[0],
+                    created_at: new Date().toISOString()
+                });
+
+            if (profileError) {
+                console.error('Profile creation error:', profileError);
+                setMessage('Account created but profile setup failed. Please contact support.');
+            } else {
+                console.log('Profile created successfully');
+                router.push('/');
+            }
+        }
+
         setLoading(false);
     };
 
@@ -85,6 +104,8 @@ export default function SignUpPage() {
                     />
 
                     <Button onClick={handleSignUp}>Sign Up</Button>
+
+                    <p className='text-center'>If you have an account, <Link className='text-(--orange)' href='/onboarding/login'>Log In</Link></p>
                 </div>
 
                 {message && (
