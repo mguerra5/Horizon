@@ -49,7 +49,7 @@ export default function SignUpPage() {
                 router.push('/');
             }
         }
-        // checkSignedIn();
+        checkSignedIn();
     }, []);
 
 
