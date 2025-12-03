@@ -74,6 +74,21 @@ export default function AccountPage() {
     };
 
 
+    const logOut = async () => {
+        try {
+            setLoading(true);
+            const { error } = await supabase.auth.signOut();
+            if (error) throw Error(error.message);
+            router.push('/');
+        } catch (error) {
+            console.log(error);
+            setMessage(`Something went wrong: ${error as any}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -140,6 +155,7 @@ export default function AccountPage() {
                     />
 
                     <Button onClick={saveUserInfo}>Sign Up</Button>
+                    <Button style={{ backgroundColor: '#e6564e' }} onClick={logOut}>Log Out</Button>
                 </div>
 
                 {message && <p className='mt-5 text-center'>{message}</p>}
