@@ -49,14 +49,14 @@ export default function SignUpPage() {
                 router.push('/');
             }
         }
-        checkSignedIn();
+        // checkSignedIn();
     }, []);
 
 
     return (
         <CheckIfLoading loading={loading}>
             <div style={{ maxWidth: 400, margin: '40px auto' }}>
-                <h1>Create an Account</h1>
+                <h1 className='text-2xl text-center pb-5'>Log In</h1>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <FormInput
@@ -73,7 +73,7 @@ export default function SignUpPage() {
                         onChange={setPassword}
                     />
 
-                    <Button onClick={handleSignUp}>Sign Up</Button>
+                    <Button onClick={handleSignUp}>Log In</Button>
                     
                     <p className='text-center'>If you do not have an account, <Link className='text-(--orange)' href='/onboarding/signup'>Sign Up</Link></p>
                 </div>

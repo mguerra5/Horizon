@@ -79,7 +79,7 @@ export default function SignUpPage() {
     return (
         <CheckIfLoading loading={loading}>
             <div style={{ maxWidth: 400, margin: '40px auto' }}>
-                <h1>Create an Account</h1>
+                <h1 className='text-2xl text-center pb-5'>Create an Account</h1>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <FormInput
