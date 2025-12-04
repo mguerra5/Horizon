@@ -1,28 +1,24 @@
 'use client';
 
-import { ReactNode, CSSProperties } from 'react';
+import { ReactNode } from 'react';
+
+import { twMerge } from 'tailwind-merge';
 
 
 
 interface ButtonProps {
     children: ReactNode;
     onClick: () => void;
-    style?: CSSProperties;
+    className?: string;
 }
 
-export default function Button({ children, onClick, style }: ButtonProps) {
-    const defaultStyle: CSSProperties = {
-        padding: '8px 16px',
-        backgroundColor: '#ff794d',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer'
-    };
-
+export default function Button({ children, onClick, className }: ButtonProps) {
     return(
         <button
-            style={{ ...defaultStyle, ...style }}
+            className={twMerge(
+                'px-4 py-2 bg-(--primary) text-white rounded cursor-pointer transition-colors',
+                className
+            )}
             onClick={onClick}
         >
             {children}

@@ -105,7 +105,7 @@ export default function SignUpPage() {
 
                     <Button onClick={handleSignUp}>Sign Up</Button>
 
-                    <p className='text-center'>If you have an account, <Link className='text-(--orange)' href='/onboarding/login'>Log In</Link></p>
+                    <p className='text-center'>If you have an account, <Link className='text-(--primary)' href='/onboarding/login'>Log In</Link></p>
                 </div>
 
                 {message && (

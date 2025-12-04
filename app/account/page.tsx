@@ -155,7 +155,7 @@ export default function AccountPage() {
                     />
 
                     <Button onClick={saveUserInfo}>Sign Up</Button>
-                    <Button style={{ backgroundColor: '#e6564e' }} onClick={logOut}>Log Out</Button>
+                    <Button className='bg-(--destructive)' onClick={logOut}>Log Out</Button>
                 </div>
 
                 {message && <p className='mt-5 text-center'>{message}</p>}
