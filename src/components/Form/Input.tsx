@@ -1,8 +1,13 @@
+
+import { twMerge } from 'tailwind-merge';
+
+
 interface StringFormInput {
     type: 'email' | 'text' | 'password';
     placeholder: string;
     value: string;
     onChange: (v: string) => void;
+    className?: string;
 }
 
 interface NumberFormInput {
@@ -10,6 +15,7 @@ interface NumberFormInput {
     placeholder: string;
     value: number;
     onChange: (v: number) => void;
+    className?: string;
 }
 
 type FormInputProps = StringFormInput | NumberFormInput;
@@ -28,13 +34,10 @@ export default function FormInput(props: FormInputProps) {
                     props.onChange(Number(e.target.value));
                 }
             }}
-            style={{
-                padding: 10,
-                borderRadius: 10,
-                flex: '0 0 auto',
-                minWidth: 0,
-                border: '1px solid black'
-            }}
+            className={twMerge(
+                'p-2.5 rounded-[10px] flex-none min-w-0 border border-black',
+                props.className
+            )}
         />
     );
 }
