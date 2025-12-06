@@ -33,8 +33,7 @@ export default function FormInput(props: FormInputProps) {
                 borderRadius: 10,
                 flex: '0 0 auto',
                 minWidth: 0,
-                border: '1px solid black',
-                width: '150px'
+                border: '1px solid black'
             }}
         />
     );
