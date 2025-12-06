@@ -105,13 +105,7 @@ export default function UploadPage() {
                     lng: coords.lng,
                     location: '',
                     type: sunEvent === 'Sunrise', // true for sunrise, false for sunset
-                    time: new Date().toLocaleTimeString('en-US', { 
-                        hour12: false,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        timeZone: 'America/Chicago'
-                    }),
+                    time: new Date().toISOString(),
                     post_urls: []
                 })
                 .select()
