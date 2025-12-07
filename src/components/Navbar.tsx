@@ -1,36 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import { useRouter } from 'next/navigation';
 
 import Button from '@components/Button';
 
-import { supabase } from '@util/supabase/frontend';
+import { useUser } from '@providers/User';
 
 
 
 export default function Navbar() {
     const router = useRouter();
-    const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-
-
-    useEffect(() => {
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setIsSignedIn(!!user);
-        };
-        checkUser();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setIsSignedIn(!!session?.user);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
-
+    const { user } = useUser();
 
     return (
         <nav className='fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm'>
@@ -47,7 +27,7 @@ export default function Navbar() {
 
                         <Button onClick={() => router.push('/upload')}>Upload</Button>
 
-                        {isSignedIn ?
+                        {user ?
                             <Button onClick={() => router.push('/account')}>Account</Button>
                         :
                             <Button onClick={() => router.push('/onboarding/signup')}>Sign Up</Button>

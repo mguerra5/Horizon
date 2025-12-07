@@ -9,11 +9,13 @@ import { supabase } from '@util/supabase/frontend';
 import Button from '@components/Button';
 import FormInput from '@components/Form/Input';
 import { CheckIfLoading } from '@components/CheckIfLoading';
+import { useUser } from '@providers/User';
 
 
 
 export default function SignUpPage() {
     const router = useRouter();
+    const { user, signIn } = useUser();
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -21,36 +23,30 @@ export default function SignUpPage() {
     const [loading, setLoading] = useState<boolean>(false);
 
 
-    const handleSignUp = async () => {
+    const handleLogin = async () => {
         setLoading(true);
         setMessage('');
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+        const { error } = await signIn(email, password);
 
-        console.log(data)
         if (error) {
-            console.log(error)
+            console.log(error);
             setMessage(error.message);
-        } else {
-            router.push('/');
+            setLoading(false);
+            return;
         }
+
+        router.push('/');
         setLoading(false);
     };
 
 
     useEffect(() => {
-        const checkSignedIn = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                console.log('Already logged in, routing.');
-                router.push('/');
-            }
+        if (user) {
+            console.log('Already logged in, routing.');
+            router.push('/');
         }
-        checkSignedIn();
-    }, []);
+    }, [user, router]);
 
 
     return (
@@ -73,7 +69,7 @@ export default function SignUpPage() {
                         onChange={setPassword}
                     />
 
-                    <Button onClick={handleSignUp}>Log In</Button>
+                    <Button onClick={handleLogin}>Log In</Button>
                     
                     <p className='text-center'>If you do not have an account, <Link className='text-(--primary)' href='/onboarding/signup'>Sign Up</Link></p>
                 </div>

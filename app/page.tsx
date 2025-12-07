@@ -1,88 +1,106 @@
-'use client';
+"use client";
 
-import { supabase } from '@util/supabase/frontend';
-import { useEffect, useState } from 'react';
-import { CheckIfLoading } from '@components/CheckIfLoading';
-import FormInput  from '@components/Form/Input'
+import { useState } from "react";
 
-interface postSchema {
-    id : Number,
-    created_at : Date,
-    longitude : Number,
-    latitude : Number,
-    location : String,
-    time : Date,
-    type : Boolean,
-    user_id : Number
-    image_link : string,
-}
-
-function Post(data : postSchema) {
-
-    return (<div>
-        
-    </div>)
-}
+import { CheckIfLoading } from "@components/CheckIfLoading";
 
 
-export default function Home() {
-    const [longitude, setLongitude] = useState<string>('');
-    const [latitude, setLatitude] = useState<string>('');
-    const [data, setData] = useState<postSchema[]>([]);
-    
-    const [message, setMessage] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+export default function Page() {
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [date, setDate] = useState("");
 
-    const createPosts = async () => {
-        const {data, error} = await supabase.from('posts').select();
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-        if (error) {
-            console.log(error);
-            setMessage(error.message);
-            setLoading(false);
-            return;
-        }
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        if (data != null) {
-            setLoading(false);
-            return;
-        }
+    const params = new URLSearchParams();
+    params.append("lat", lat);
+    params.append("lng", lng);
+    if (date) params.append("date", date);
 
-        // change later
-        setData(data);
+    try {
+      const response = await fetch(`/api/search?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const data = await response.json();
+      setResult(data); // to-do: parse necessary information from data and modify "result" output to display it nicely.
+    } catch (err) {
+      setError((err as any).message);
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    useEffect(() => {
-        createPosts();
-    }, [longitude, latitude])
+  return (
+    <CheckIfLoading loading={loading}>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Latitude
+            <input
+              type="number"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              step="0.000001"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </label>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Longitude
+            <input
+              type="number"
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              step="0.000001"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </label>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Date (defaults to today)
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </label>
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          Get Sunrise and Sunset
+        </button>
 
-    return (<CheckIfLoading loading={loading}>
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                <div style={{display: 'flex', flexDirection: 'row', gap: '5px'}}>
-                    <FormInput
-                        type='text'
-                        placeholder='longitude'
-                        value={longitude}
-                        onChange={setLongitude}
-                    />
+        {error && (
+          <div className="p-3 bg-red-100 text-red-700 rounded-md">
+            Error: {error}
+          </div>
+        )}
 
-                    <FormInput
-                        type='text'
-                        placeholder='latitude'
-                        value={latitude}
-                        onChange={setLatitude}
-                    />
-                </div>
-
-
-                {data.map(item => <Post {...item}/> )}
-                
-                {message && (
-                    <p style={{ marginTop: 20 }}>
-                        {message}
-                    </p>
-                )}
-            </div>
-        </CheckIfLoading>
-    );
+        {result && (
+          <div className="p-3 bg-green-100 text-green-700 rounded-md">
+            <pre>{JSON.stringify(result, null, 2)}</pre>
+          </div>
+        )}
+      </div>
+    </CheckIfLoading>
+  );
 }

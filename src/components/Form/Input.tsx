@@ -1,28 +1,43 @@
-interface FormInputProps {
+
+import { twMerge } from 'tailwind-merge';
+
+
+interface StringFormInput {
     type: 'email' | 'text' | 'password';
     placeholder: string;
     value: string;
     onChange: (v: string) => void;
+    className?: string;
 }
 
-export default function FormInput({
-    type,
-    placeholder,
-    value,
-    onChange
-}: FormInputProps) {
+interface NumberFormInput {
+    type: 'number';
+    placeholder: string;
+    value: number;
+    onChange: (v: number) => void;
+    className?: string;
+}
+
+type FormInputProps = StringFormInput | NumberFormInput;
+
+export default function FormInput(props: FormInputProps) {
     return (
         <input
-            type={type}
-            placeholder={placeholder}
+            type={props.type}
+            placeholder={props.placeholder}
             required
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{
-                padding: 10,
-                borderRadius: 10,
-                border: '1px solid black'
+            value={props.value}
+            onChange={(e) => {
+                if (props.type !== 'number') {
+                    props.onChange(e.target.value);
+                } else {
+                    props.onChange(Number(e.target.value));
+                }
             }}
+            className={twMerge(
+                'p-2.5 rounded-[10px] flex-none min-w-0 border border-black',
+                props.className
+            )}
         />
     );
 }

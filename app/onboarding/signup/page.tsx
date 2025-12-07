@@ -9,11 +9,13 @@ import { supabase } from '@util/supabase/frontend';
 import Button from '@components/Button';
 import FormInput from '@components/Form/Input';
 import { CheckIfLoading } from '@components/CheckIfLoading';
+import { useUser } from '@providers/User';
 
 
 
 export default function SignUpPage() {
     const router = useRouter();
+    const { user, signUp } = useUser();
 
     const [email, setEmail] = useState<string>('');
     const [username, setUsername] = useState<string>('');
@@ -26,14 +28,7 @@ export default function SignUpPage() {
         setLoading(true);
         setMessage('');
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { username },
-                emailRedirectTo: undefined
-            }
-        });
+        const { error } = await signUp(email, password, username);
 
         if (error) {
             console.log(error);
@@ -42,38 +37,17 @@ export default function SignUpPage() {
             return;
         }
 
-        if (data.user) {
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                    id: data.user.id,
-                    display_name: username || email.split('@')[0],
-                    created_at: new Date().toISOString()
-                });
-
-            if (profileError) {
-                console.error('Profile creation error:', profileError);
-                setMessage('Account created but profile setup failed. Please contact support.');
-            } else {
-                console.log('Profile created successfully');
-                router.push('/');
-            }
-        }
-
+        router.push('/');
         setLoading(false);
     };
 
 
     useEffect(() => {
-        const checkSignedIn = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                console.log('Already logged in, routing.');
-                router.push('/');
-            }
+        if (user) {
+            console.log('Already logged in, routing.');
+            router.push('/');
         }
-        checkSignedIn();
-    }, []);
+    }, [user, router]);
 
 
     return (
