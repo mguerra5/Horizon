@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Navbar />
-                <div className='pt-16'>
+                <div className='pt-50'>
                     {children}
                 </div>
             </body>
