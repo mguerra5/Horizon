@@ -1,106 +1,106 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { supabase } from '@util/supabase/frontend';
+import { useEffect, useState } from 'react';
+import { CheckIfLoading } from '@components/CheckIfLoading';
+import FormInput  from '@components/Form/Input'
+import PostPage from './post/[postId]/page';
+import { PostType } from '@/src/components/Post';
+import Link from 'next/link';
+import FormDropdown from '@/src/components/Form/Dropdown';
 
-import { CheckIfLoading } from "@components/CheckIfLoading";
+export default function Home() {
+    const [longitude, setLongitude] = useState<string>('');
+    const [latitude, setLatitude] = useState<string>('');
+    const [type, setType] = useState<string>('None');
+    const [postData, setPostData] = useState<PostType[]>([]);
+    
+    const [message, setMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
+    useEffect(() => {
+      const fetchData = async () => {
+        let query = supabase.from('posts').select();
+        if (type != 'None') {
+          query = query.eq('type', type == 'Sunrise');
+        }
+        if (latitude != '') {
+          query.eq('lng', Number(latitude));
+        }
 
-export default function Page() {
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [date, setDate] = useState("");
+        if (longitude != '') {
+          query.eq('lng', Number(longitude));
+        }
 
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+        const {data, error} = await query;
 
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+        if (error) {
+            console.log(error);
+            setMessage(error.message);
+            setLoading(false);
+            return;
+        }
 
-    const params = new URLSearchParams();
-    params.append("lat", lat);
-    params.append("lng", lng);
-    if (date) params.append("date", date);
+        setPostData(data);
+      };
 
-    try {
-      const response = await fetch(`/api/search?${params.toString()}`);
+      fetchData();
+    }, [longitude, latitude, type]);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
+    return (<CheckIfLoading loading={loading}>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '10px'}}>
+                <div style={{display: 'flex', flexDirection: 'row', gap: '5px'}}>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
+                      <label className="block text-sm font-medium mb-1">
+                        Latitude
+                      </label>
+                      <FormInput
+                          type='text'
+                          placeholder='longitude'
+                          value={longitude}
+                          onChange={setLongitude}
+                      />
+                    </div>
 
-      const data = await response.json();
-      setResult(data); // to-do: parse necessary information from data and modify "result" output to display it nicely.
-    } catch (err) {
-      setError((err as any).message);
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
+                      <label className="block text-sm font-medium mb-1">
+                        Longitude
+                      </label>
+                      <FormInput
+                          type='text'
+                          placeholder='latitude'
+                          value={latitude}
+                          onChange={setLatitude}
+                      />
+                    </div>
 
-  return (
-    <CheckIfLoading loading={loading}>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Latitude
-            <input
-              type="number"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-              step="0.000001"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </label>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Longitude
-            <input
-              type="number"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-              step="0.000001"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </label>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Date (defaults to today)
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </label>
-        </div>
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          Get Sunrise and Sunset
-        </button>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
+                      <label className="block text-sm font-medium mb-1">
+                        Type
+                      </label>
+                      <FormDropdown
+                        type='string'
+                        value={type}
+                        options={['Sunrise', 'Sunset', 'None']}
+                        onChange={setType}
+                      />
+                    </div>
+                </div>
 
-        {error && (
-          <div className="p-3 bg-red-100 text-red-700 rounded-md">
-            Error: {error}
-          </div>
-        )}
-
-        {result && (
-          <div className="p-3 bg-green-100 text-green-700 rounded-md">
-            <pre>{JSON.stringify(result, null, 2)}</pre>
-          </div>
-        )}
-      </div>
-    </CheckIfLoading>
-  );
+                <div>
+                {postData.map((item, idx) => (
+                  <div key={idx}>
+                    <Link href={'/post/' + item.id} style={{position: 'absolute', marginTop: '40px', width: '616px', height: '570px'}}/>
+                    {<PostPage postId={item.id}/>}
+                  </div>))}
+                </div>
+                
+                {message && (
+                    <p style={{ marginTop: 20 }}>
+                        {message}
+                    </p>
+                )}
+            </div>
+        </CheckIfLoading>
+    );
 }

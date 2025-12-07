@@ -9,12 +9,15 @@ import { useUser } from '@providers/User';
 
 
 
-export default function PostPage() {
+export default function PostPage({postId = ''}) {
+    console.log(postId);
     const { user } = useUser();
 
     const router = useRouter();
     const params = useParams();
-    const postId = params.postId as string;
+    if (postId == '') {
+        postId = params.postId as string;
+    }
 
     const [post, setPost] = useState<PostType | null>(null);
     const [loading, setLoading] = useState(true);
