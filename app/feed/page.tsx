@@ -1,13 +1,15 @@
+"use client"
+
 import { supabase } from '@util/supabase/frontend';
 import { useEffect, useState } from 'react';
 import { CheckIfLoading } from '@components/CheckIfLoading';
 import FormInput  from '@components/Form/Input'
-import PostPage from './post/[postId]/page';
+import PostPage from '../post/[postId]/page'
 import { PostType } from '@/src/components/Post';
 import Link from 'next/link';
 import FormDropdown from '@/src/components/Form/Dropdown';
 
-export default function Home() {
+export default function Feed() {
     const [longitude, setLongitude] = useState<string>('');
     const [latitude, setLatitude] = useState<string>('');
     const [type, setType] = useState<string>('None');

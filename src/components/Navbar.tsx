@@ -23,7 +23,7 @@ export default function Navbar() {
                     </div>
 
                     <div className='flex items-center gap-4'>
-                        <Button onClick={() => router.push('/search')}>Search</Button>
+                        <Button onClick={() => router.push('/feed')}>Feed</Button>
 
                         <Button onClick={() => router.push('/upload')}>Upload</Button>
 
