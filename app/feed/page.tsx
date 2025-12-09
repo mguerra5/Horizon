@@ -11,8 +11,6 @@ import Post, { PostType } from '@components/Post';
 import FormInput from '@/src/components/Form/Input';
 import FormDropdown from '@/src/components/Form/Dropdown';
 
-
-
 export default function Feed() {
     const router = useRouter();
     const { user } = useUser();
@@ -21,7 +19,8 @@ export default function Feed() {
 
     const [longitude, setLongitude] = useState('');
     const [latitude, setLatitude] = useState('');
-    const [type, setType] = useState('None');
+    const [pictureType, setPictureType] = useState('None');
+    const [order, setOrder] = useState('Newest');
 
     const [posts, setPosts] = useState<PostType[]>([]);
     const [loading, setLoading] = useState(false);
@@ -43,19 +42,19 @@ export default function Feed() {
             likes(count),
             user_like:likes!likes_post_id_fkey(user_id)
         `)
-        .order('created_at', { ascending: false })
+		.order('created_at', { ascending: order !== 'Newest' })
         .range(pageNumber * PAGE_SIZE, pageNumber * PAGE_SIZE + PAGE_SIZE - 1)
         .eq('user_like.user_id', user?.id ?? null);
 
-        if (type !== 'None') query = query.eq('type', type === 'Sunrise');
+        if (pictureType !== 'None') query = query.eq('type', pictureType === 'Sunrise');
 
         if (latitude !== '') {
             const lat = Number(latitude);
-            query = query.gte('lat', lat - 0.001).lte('lat', lat + 0.001);
+            query = query.gte('lat', lat - 0.01).lte('lat', lat + 0.01);
         }
         if (longitude !== '') {
             const lng = Number(longitude);
-            query = query.gte('lng', lng - 0.001).lte('lng', lng + 0.001);
+            query = query.gte('lng', lng - 0.01).lte('lng', lng + 0.01);
         }
 
         const { data, error } = await query;
@@ -84,7 +83,7 @@ export default function Feed() {
         setPosts([]);
         setHasMore(true);
         fetchPosts(0, true);
-    }, [longitude, latitude, type]);
+    }, [longitude, latitude, pictureType, order]);
 
     useEffect(() => {
         if (page === 0) return;
@@ -104,19 +103,23 @@ export default function Feed() {
 
     return (
         <div>
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '10px'}}>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '10px', gap: '10px'}}>
                 <div style={{display: 'flex', flexDirection: 'row', gap: '5px'}}>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
                         <label className="block text-sm font-medium mb-1"> Latitude </label>
-                        <FormInput type='text' placeholder='longitude' value={longitude} onChange={setLongitude} />
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
-                        <label className="block text-sm font-medium mb-1"> Longitude </label>
                         <FormInput type='text' placeholder='latitude' value={latitude} onChange={setLatitude} />
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
+                        <label className="block text-sm font-medium mb-1"> Longitude </label>
+                        <FormInput type='text' placeholder='longitude' value={longitude} onChange={setLongitude} />
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
                         <label className="block text-sm font-medium mb-1"> Type </label>
-                        <FormDropdown type='string' value={type} options={['Sunrise', 'Sunset', 'None']} onChange={setType} />
+                        <FormDropdown type='string' value={pictureType} options={['Sunrise', 'Sunset', 'None']} onChange={setPictureType} />
+                    </div>
+					<div style={{display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center'}}>
+                        <label className="block text-sm font-medium mb-1"> Sort By </label>
+                        <FormDropdown type='string' value={order} options={['Newest', 'Oldest']} onChange={setOrder} />
                     </div>
                 </div>
             </div>
