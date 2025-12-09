@@ -1,59 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { useRouter, useParams } from 'next/navigation';
+
 import { supabase } from '@util/supabase/frontend';
-import { CheckIfLoading } from '@components/CheckIfLoading';
-import Post, { PostType } from '@components/Post';
+
 import { useUser } from '@providers/User';
 
+import { CheckIfLoading } from '@components/CheckIfLoading';
+import Post, { PostType } from '@components/Post';
 
 
-export default function PostPage({postId = ''}) {
-    console.log(postId);
+
+export default function PostPage() {
     const { user } = useUser();
 
     const router = useRouter();
     const params = useParams();
-    if (postId == '') {
-        postId = params.postId as string;
-    }
+    const postId = params.postId as string;
 
     const [post, setPost] = useState<PostType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>('');
-
-
-    const toggleLike = async () => {
-        try {
-            if (!post || !user) return;
-            if (post.isLiked) {
-                // Unlike post.
-                setPost(() => ({
-                    ...post,
-                    isLiked: false,
-                    numLikes: post.numLikes - 1
-                }));
-                await supabase
-                    .from('likes')
-                    .delete()
-                    .eq('post_id', postId)
-                    .eq('user_id', user.id);
-            } else {
-                // Like post.
-                setPost(() => ({
-                    ...post,
-                    isLiked: true,
-                    numLikes: post.numLikes + 1
-                }));
-                await supabase
-                    .from('likes')
-                    .insert({ post_id: postId, user_id: user.id });
-            }
-        } catch (error) {
-            console.log("Error when togglgin like: ", error)
-        }
-    };
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -64,10 +33,12 @@ export default function PostPage({postId = ''}) {
                     .from('posts')
                     .select(`
                         *,
-                        profiles ( display_name ),
-                        likes (user_id)
+                        profiles!posts_user_id_fkey(display_name),
+                        likes(count),
+                        user_like:likes!likes_post_id_fkey(user_id)
                     `)
                     .eq('id', postId)
+                    .eq('user_like.user_id', user?.id ?? null)
                     .single();
 
                 if (error) {
@@ -81,13 +52,10 @@ export default function PostPage({postId = ''}) {
                     return;
                 }
 
-                const likesArray = Array.isArray(data.likes) ? data.likes : (data.likes ? [data.likes] : []);
-                const numLikes = likesArray.length;
-                const isLiked = user ? likesArray.some((like: any) => like.user_id === user.id) : false;
                 setPost({
                     ...data,
-                    numLikes,
-                    isLiked
+                    numLikes: data.likes?.[0]?.count ?? 0,
+                    isLiked: data.user_like?.length > 0
                 });
             } catch (err) {
                 console.error('Unexpected error:', err);
@@ -105,7 +73,7 @@ export default function PostPage({postId = ''}) {
     return (
         <CheckIfLoading loading={loading}>
             <div style={{ maxWidth: 800, margin: '40px auto', padding: '0 20px' }}>
-                {error ? (
+                {error ?
                     <div>
                         <h1 className='text-2xl mb-4'>Error</h1>
                         <p>{error}</p>
@@ -116,13 +84,9 @@ export default function PostPage({postId = ''}) {
                             Go Back
                         </button>
                     </div>
-                ) : post ? (
-                    <Post
-                        post={post}
-                        toggleLike={toggleLike}
-                    />
-                ) : null}
-                
+                :
+                    post ? <Post post={post} /> : null
+                }
             </div>
         </CheckIfLoading>
     );

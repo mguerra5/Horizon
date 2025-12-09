@@ -1,8 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { Heart } from 'lucide-react';
+
+import { useUser } from '@providers/User';
+
+import { supabase } from '@util/supabase/frontend';
 
 
 
@@ -25,11 +29,12 @@ export type PostType = {
 
 interface PostProps {
     post: PostType;
-    toggleLike: () => void;
 }
 
-export default function Post({ post, toggleLike }: PostProps) {
-    const router = useRouter();
+export default function Post({ post: originalPost }: PostProps) {
+    const { user } = useUser();
+
+    const [post, setPost] = useState<PostType>(originalPost);
 
     const localDate = new Date(post.time);
     const formattedTime = localDate.toLocaleString('en-US', {
@@ -39,6 +44,37 @@ export default function Post({ post, toggleLike }: PostProps) {
         day: 'numeric',
         hour12: true
     });
+
+    const toggleLike = async () => {
+        try {
+            if (!post || !user) return;
+            if (post.isLiked) {
+                // Unlike post.
+                setPost(() => ({
+                    ...post,
+                    isLiked: false,
+                    numLikes: post.numLikes - 1
+                }));
+                await supabase
+                    .from('likes')
+                    .delete()
+                    .eq('post_id', post.id)
+                    .eq('user_id', user.id);
+            } else {
+                // Like post.
+                setPost(() => ({
+                    ...post,
+                    isLiked: true,
+                    numLikes: post.numLikes + 1
+                }));
+                await supabase
+                    .from('likes')
+                    .insert({ post_id: post.id, user_id: user.id });
+            }
+        } catch (error) {
+            console.log("Error when togglgin like: ", error)
+        }
+    };
 
 
     return (
