@@ -20,7 +20,6 @@ export default function Feed() {
     const [longitude, setLongitude] = useState('');
     const [latitude, setLatitude] = useState('');
     const [pictureType, setPictureType] = useState('None');
-    const [sortingType, setSortingType] = useState('Time');
     const [order, setOrder] = useState('Newest');
 
     const [posts, setPosts] = useState<PostType[]>([]);
@@ -84,7 +83,7 @@ export default function Feed() {
         setPosts([]);
         setHasMore(true);
         fetchPosts(0, true);
-    }, [longitude, latitude, pictureType, sortingType, order]);
+    }, [longitude, latitude, pictureType, order]);
 
     useEffect(() => {
         if (page === 0) return;
