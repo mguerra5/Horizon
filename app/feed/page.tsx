@@ -50,11 +50,11 @@ export default function Feed() {
 
         if (latitude !== '') {
             const lat = Number(latitude);
-            query = query.gte('lat', lat - 0.001).lte('lat', lat + 0.001);
+            query = query.gte('lat', lat - 0.01).lte('lat', lat + 0.01);
         }
         if (longitude !== '') {
             const lng = Number(longitude);
-            query = query.gte('lng', lng - 0.001).lte('lng', lng + 0.001);
+            query = query.gte('lng', lng - 0.01).lte('lng', lng + 0.01);
         }
 
         const { data, error } = await query;
