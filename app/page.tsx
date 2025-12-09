@@ -6,6 +6,20 @@ import { CheckIfLoading } from "@components/CheckIfLoading";
 import { AddFavoriteModal } from "@components/favorite_modal";
 import { useUser } from "../src/providers/User";
 
+interface SunriseSunsetResult {
+  results?: {
+    sunrise?: string;
+    sunset?: string;
+  };
+  sunrise?: string;
+  sunset?: string;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+}
+
 export default function Page() {
   const { user } = useUser();
   const [lat, setLat] = useState("");
@@ -13,13 +27,13 @@ export default function Page() {
   const [date, setDate] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [result, setResult] = useState<SunriseSunsetResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [modal, setModal] = useState(false);
   const [refreshSidebar, setRefresh] = useState(false);
 
-  const submitForm = async (latitude, longitude) => {
+  const submitForm = async (latitude: string, longitude: string) => {
     setLoading(true);
     setError(null);
 
@@ -37,15 +51,19 @@ export default function Page() {
 
       const data = await response.json();
       setResult(data);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occured.");
+      }
       console.error("Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFavoriteSelect = (location) => {
+  const handleFavoriteSelect = (location: Location) => {
     const newLat = location.lat.toString();
     const newLng = location.lng.toString();
 

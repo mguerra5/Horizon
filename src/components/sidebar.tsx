@@ -4,11 +4,34 @@ import { supabase } from "@util/supabase/frontend";
 import { useUser } from "@providers/User";
 import { CheckIfLoading } from "@components/CheckIfLoading";
 
-export function FavoritesSidebar({ onSelectLocation, refresh }) {
+interface Location {
+  lat: number;
+  lng: number;
+  name?: string;
+}
+
+interface Favorite {
+  id: string;
+  location: string;
+  lat: number;
+  lng: number;
+  user_id: string;
+  created_at?: string;
+}
+
+interface FavoritesSidebarProps {
+  onSelectLocation: (location: Location) => void;
+  refresh: boolean;
+}
+
+export function FavoritesSidebar({
+  onSelectLocation,
+  refresh,
+}: FavoritesSidebarProps) {
   const { user } = useUser();
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return;
@@ -25,8 +48,12 @@ export function FavoritesSidebar({ onSelectLocation, refresh }) {
 
       if (error) throw error;
       setFavorites(data || []);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
       console.error("Error fetching favorites:", err);
     } finally {
       setLoading(false);
@@ -41,7 +68,7 @@ export function FavoritesSidebar({ onSelectLocation, refresh }) {
     }
   }, [user, fetchFavorites, refresh]);
 
-  const handleLocationClick = (favorite) => {
+  const handleLocationClick = (favorite: Favorite) => {
     if (onSelectLocation) {
       onSelectLocation({
         lat: favorite.lat,
@@ -51,8 +78,13 @@ export function FavoritesSidebar({ onSelectLocation, refresh }) {
     }
   };
 
-  const handleDelete = async (e, favorite) => {
+  const handleDelete = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    favorite: Favorite,
+  ) => {
     e.stopPropagation();
+
+    if (!user) return;
 
     if (!confirm("Are you sure you want to delete this favorite location?")) {
       return;
@@ -68,8 +100,12 @@ export function FavoritesSidebar({ onSelectLocation, refresh }) {
       if (error) throw error;
 
       fetchFavorites();
-    } catch (err) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
       console.error("Error deleting favorite:", err);
     }
   };

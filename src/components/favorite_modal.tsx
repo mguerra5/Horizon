@@ -3,11 +3,25 @@ import { useState } from "react";
 import { supabase } from "@util/supabase/frontend";
 import { useUser } from "@providers/User";
 
-export function AddFavoriteModal({ isOpen, onClose, lat, lng, onAdd }) {
+interface AddFavoriteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lat: string;
+  lng: string;
+  onAdd: () => void;
+}
+
+export function AddFavoriteModal({
+  isOpen,
+  onClose,
+  lat,
+  lng,
+  onAdd,
+}: AddFavoriteModalProps) {
   const { user } = useUser();
   const [locationName, setLocationName] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!user) {
@@ -43,9 +57,13 @@ export function AddFavoriteModal({ isOpen, onClose, lat, lng, onAdd }) {
       setLocationName("");
       onAdd();
       onClose();
-    } catch (err) {
-      setError(err.message);
-      console.error("Error saving favorite:", err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occured.");
+      }
+      console.error("Error:", err);
     } finally {
       setSaving(false);
     }
