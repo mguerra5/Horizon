@@ -43,8 +43,9 @@ export default function Feed() {
             user_like:likes!likes_post_id_fkey(user_id)
         `)
 		.order('created_at', { ascending: order !== 'Newest' })
-        .range(pageNumber * PAGE_SIZE, pageNumber * PAGE_SIZE + PAGE_SIZE - 1)
-        .eq('user_like.user_id', user?.id ?? null);
+        .range(pageNumber * PAGE_SIZE, pageNumber * PAGE_SIZE + PAGE_SIZE - 1);
+
+        if (user?.id) query = query.eq('user_like.user_id', user.id);
 
         if (pictureType !== 'None') query = query.eq('type', pictureType === 'Sunrise');
 

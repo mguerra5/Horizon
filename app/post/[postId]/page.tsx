@@ -29,7 +29,7 @@ export default function PostPage() {
             try {
                 setLoading(true);
 
-                const { data, error } = await supabase
+                let query = supabase
                     .from('posts')
                     .select(`
                         *,
@@ -37,9 +37,11 @@ export default function PostPage() {
                         likes(count),
                         user_like:likes!likes_post_id_fkey(user_id)
                     `)
-                    .eq('id', postId)
-                    .eq('user_like.user_id', user?.id ?? null)
-                    .single();
+                    .eq('id', postId);
+    
+                if (user) query = query.eq('user_like.user_id', user?.id ?? null)
+
+                const { data, error } = await query.single();
 
                 if (error) {
                     console.error('Error fetching post:', error);
