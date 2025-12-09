@@ -42,8 +42,7 @@ export default function Feed() {
             likes(count),
             user_like:likes!likes_post_id_fkey(user_id)
         `)
-		.order('created_at', { ascending: order !== 'Newest' })
-        .range(pageNumber * PAGE_SIZE, pageNumber * PAGE_SIZE + PAGE_SIZE - 1);
+		.order('created_at', { ascending: order !== 'Newest' });
 
         if (user?.id) query = query.eq('user_like.user_id', user.id);
 
@@ -51,12 +50,14 @@ export default function Feed() {
 
         if (latitude !== '') {
             const lat = Number(latitude);
-            query = query.gte('lat', lat - 0.01).lte('lat', lat + 0.01);
+            query = query.gte('lat', lat - 0.1).lte('lat', lat + 0.1);
         }
         if (longitude !== '') {
             const lng = Number(longitude);
-            query = query.gte('lng', lng - 0.01).lte('lng', lng + 0.01);
+            query = query.gte('lng', lng - 0.1).lte('lng', lng + 0.1);
         }
+
+        query = query.range(pageNumber * PAGE_SIZE, pageNumber * PAGE_SIZE + PAGE_SIZE - 1)
 
         const { data, error } = await query;
 
