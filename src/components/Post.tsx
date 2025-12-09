@@ -81,7 +81,7 @@ export default function Post({ post: originalPost }: PostProps) {
         <div className='border-4 border-(--primary) rounded-lg overflow-hidden transition max-w-xl mx-auto'>
             <div className='p-2 p bg-white border-b-2 border-(--primary)'>
                 <div className='flex justify-between text-gray-600 text-sm'>
-                    <span>Location: ({post.lng}, {post.lat})</span>
+                    <span>Location: ({post.lat}, {post.lng})</span>
                     <span>{formattedTime}</span>
                 </div>
             </div>
