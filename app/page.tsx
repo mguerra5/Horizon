@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { FavoritesSidebar } from "@components/sidebar";
@@ -134,15 +134,24 @@ export default function Page() {
                 </button>
               )}
             </div>
-
             {error && (
               <div className="p-3 bg-red-100 text-red-700 rounded-md">
                 Error: {error}
               </div>
             )}
             {result && (
-              <div className="p-3 bg-green-100 text-green-700 rounded-md">
-                <pre>{JSON.stringify(result, null, 2)}</pre>
+              <div className="p-4 bg-green-100 rounded-md">
+                <h2 className="text-lg font-semibold mb-2">Results</h2>
+                <div className="space-y-1">
+                  <p>
+                    <span className="font-medium">Sunrise:</span>{" "}
+                    {result.results?.sunrise || result.sunrise || "N/A"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Sunset:</span>{" "}
+                    {result.results?.sunset || result.sunset || "N/A"}
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -159,4 +168,3 @@ export default function Page() {
     </div>
   );
 }
-
